@@ -6,9 +6,12 @@ class Program
         {
             Console.Write("$ "); 
             var command = Console.ReadLine();
-            if (command != null)
-            {
+            if (command != "exit")
                 Console.WriteLine($"{command}: command not found");
+            else
+            {
+                Console.WriteLine("exit");
+                return;
             }
         }
         
