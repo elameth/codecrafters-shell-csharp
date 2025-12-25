@@ -13,6 +13,18 @@ class Program
 
             switch (command)
             {
+                case "type":
+                    switch (input[1])
+                    {
+                        case "exit" or "quit" or "type" or "echo":
+                            Console.WriteLine($"{input[1]} is a shell builtin");
+                            break;
+                        default:
+                            Console.WriteLine($"{input[1]}: command not found");
+                            break;
+                            
+                    }
+                    break;
                 case "exit":
                     Console.WriteLine("exit");
                     return;
