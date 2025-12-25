@@ -17,7 +17,7 @@ class Program
                     Console.WriteLine("exit");
                     return;
                 case "echo":
-                    Console.WriteLine($"{message} \n");
+                    Console.WriteLine($"{message}");
                     break;
                 default:
                     Console.WriteLine($"{command}: command not found");
