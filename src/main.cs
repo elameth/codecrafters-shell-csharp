@@ -20,7 +20,7 @@ class Program
                             Console.WriteLine($"{input[1]} is a shell builtin");
                             break;
                         default:
-                            Console.WriteLine($"{input[1]}: command not found");
+                            Console.WriteLine($"{input[1]}: not found");
                             break;
                             
                     }
