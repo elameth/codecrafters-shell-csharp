@@ -65,7 +65,7 @@ class Program
                     if (input.Length < 2) { Console.WriteLine("type: missing argument"); break; }
                     switch (input[1])
                     {
-                        case "exit" or "quit" or "type" or "echo":
+                        case "exit" or "quit" or "type" or "echo" or "pwd":
                             Console.WriteLine($"{input[1]} is a shell builtin");
                             break;
                         default: //assumes we are checking for paths, for now
@@ -80,15 +80,18 @@ class Program
                 case "echo":
                     Console.WriteLine($"{message}");
                     break;
+                case "pwd":
+                    Console.WriteLine($"{Directory.GetCurrentDirectory()}");
+                    break;
+                
                 default: //now we assume the command is a program
-                    
                     var executable = FindExecutableInPath(command);
                     if (executable == null)
                     {
                         Console.WriteLine($"{command}: command not found");
                         break;
                     }
-                    //giving the full path executable gave a test log error, so I am writing just the name for now, should be full executable normally 
+                    //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
                     RunProgram(command, message); //message is all words after first word
                     break;
             }
