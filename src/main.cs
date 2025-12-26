@@ -1,5 +1,6 @@
 class Program
 {
+    /*
     static bool IsExecutable(string path)
     {
         var extension = Path.GetExtension(path);
@@ -14,6 +15,7 @@ class Program
             .Split(';', StringSplitOptions.RemoveEmptyEntries)
             .Any(e => e.Equals(extension, StringComparison.OrdinalIgnoreCase));
     }
+    */
 
     static string? FindExecutableInPath(string fileName)
     {
@@ -21,18 +23,17 @@ class Program
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
         if (paths == null)
             return null;
-        var pathExtensions = Environment.GetEnvironmentVariable("PATHEXT");
+        var pathExtensions = Environment.GetEnvironmentVariable("PATHEXT"); //raw
+        if (string.IsNullOrEmpty(pathExtensions))
+            return null;
         foreach (var path in paths)
         {
             var fullPath = Path.Combine(path, fileName);
-            if (!File.Exists(fullPath)) continue;
-            if (string.IsNullOrEmpty(pathExtensions))
-                return null;
-            foreach (var pathExtension in pathExtensions)
+            foreach (var pathExtension in pathExtensions.Split(';', StringSplitOptions.RemoveEmptyEntries))
             {
                 var fullPathWithExtension = fullPath + pathExtension;
-                if (IsExecutable(fullPathWithExtension))
-                    return fullPath;
+                if (!File.Exists(fullPathWithExtension)) continue;
+                return fullPath;
             }
         }
         return null;
