@@ -23,19 +23,21 @@ class Program
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
         if (paths == null)
             return null;
-        var pathExtensions = Environment.GetEnvironmentVariable("PATHEXT"); //raw
-        if (string.IsNullOrEmpty(pathExtensions))
-            return null;
+        //var pathExtensions = Environment.GetEnvironmentVariable("PATHEXT"); //raw
+        //if (string.IsNullOrEmpty(pathExtensions))
+        //    return null;
         foreach (var path in paths)
         {
             var fullPath = Path.Combine(path, fileName);
-            foreach (var pathExtension in pathExtensions.Split(';', StringSplitOptions.RemoveEmptyEntries))
-            {
-                var fullPathWithExtension = fullPath + pathExtension;
-                if (!File.Exists(fullPathWithExtension) || !File.Exists(fullPath)/*test*/) continue;
-                
+            //foreach (var pathExtension in pathExtensions.Split(';', StringSplitOptions.RemoveEmptyEntries))
+            //{
+            //    var fullPathWithExtension = fullPath + pathExtension;
+            //    if (!File.Exists(fullPathWithExtension) || !File.Exists(fullPath)/*test*/) continue;
+            //    
+            //    return fullPath;
+            //}
+            if (File.Exists(fullPath))
                 return fullPath;
-            }
         }
         return null;
     }
