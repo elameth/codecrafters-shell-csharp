@@ -1,5 +1,7 @@
 using System.Diagnostics;
 
+//to add: linux or windows checks, and compatibility for both
+
 class Program
 {
     
@@ -82,6 +84,19 @@ class Program
                     break;
                 case "pwd":
                     Console.WriteLine($"{Directory.GetCurrentDirectory()}");
+                    break;
+                case "cd":
+                    if (input.Length < 2)
+                    {
+                        Console.WriteLine("cd: missing argument"); 
+                        break;
+                    }
+
+                    if (!Directory.Exists(input[1]))
+                    {
+                        Console.WriteLine($"cd: {input[1]} No such file or directory");
+                    }
+                    Directory.SetCurrentDirectory(input[1]);
                     break;
                 
                 default: //now we assume the command is a program
