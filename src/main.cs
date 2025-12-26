@@ -32,7 +32,7 @@ class Program
             foreach (var pathExtension in pathExtensions.Split(';', StringSplitOptions.RemoveEmptyEntries))
             {
                 var fullPathWithExtension = fullPath + pathExtension;
-                if (!File.Exists(fullPathWithExtension)) continue;
+                if (!File.Exists(fullPathWithExtension) || !File.Exists(fullPath)/*test*/) continue;
                 return fullPath;
             }
         }
