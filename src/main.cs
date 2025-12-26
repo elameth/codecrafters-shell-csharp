@@ -1,5 +1,20 @@
 class Program
 {
+    
+    
+    static bool IsExecutable(string fullPath)
+    {
+        try
+        {
+            var mode = File.GetUnixFileMode(fullPath);
+            return (mode & UnixFileMode.UserExecute) != 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     static string? FindExecutableInPath(string fileName)
     {
         var paths = Environment.GetEnvironmentVariable("PATH")?
@@ -9,8 +24,7 @@ class Program
         foreach (var path in paths)
         {
             var fullPath = Path.Combine(path, fileName);
-            if (!Path.Exists(fullPath)) continue;
-            if (File.Exists(fullPath))
+            if (File.Exists(fullPath) && IsExecutable(fullPath))
                 return fullPath;
         }
         return null;
@@ -29,6 +43,7 @@ class Program
             switch (command)
             {
                 case "type":
+                    if (input.Length < 2) { Console.WriteLine("type: missing argument"); break; }
                     switch (input[1])
                     {
                         case "exit" or "quit" or "type" or "echo":
