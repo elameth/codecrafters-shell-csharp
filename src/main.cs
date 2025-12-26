@@ -9,7 +9,8 @@ class Program
         foreach (var path in paths)
         {
             var fullPath = Path.Combine(path, fileName);
-            if (File.Exists(fullPath) || File.GetUnixFileMode(fullPath) == UnixFileMode.UserExecute)
+            if (!Path.Exists(fullPath)) continue;
+            if (File.Exists(fullPath))
                 return fullPath;
         }
         return null;
