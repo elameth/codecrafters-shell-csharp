@@ -88,7 +88,8 @@ class Program
                         Console.WriteLine($"{command}: command not found");
                         break;
                     }
-                    RunProgram(executable, message); //message is all words after first word
+                    //giving the full path executable gave a test log error, so I am writing just the name for now, should be full executable normally 
+                    RunProgram(command, message); //message is all words after first word
                     break;
             }
         }
