@@ -94,7 +94,7 @@ class Program
 
                     if (!Directory.Exists(input[1]))
                     {
-                        Console.WriteLine($"cd: {input[1]} No such file or directory");
+                        Console.WriteLine($"cd: {input[1]}: No such file or directory");
                         break;
                     }
                     Directory.SetCurrentDirectory(input[1]);
