@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 class Program
 {
     
@@ -15,6 +17,8 @@ class Program
         }
     }
 
+    
+    
     static string? FindExecutableInPath(string fileName)
     {
         var paths = Environment.GetEnvironmentVariable("PATH")?
@@ -29,6 +33,21 @@ class Program
         }
         return null;
     }
+
+    static void RunProgram(string fullPath, string arguments)
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = fullPath,
+            Arguments = arguments,
+            UseShellExecute = false
+
+        };
+        using var process = Process.Start(psi);
+        process?.WaitForExit();
+    }
+    
+    
     static void Main()
     {
         while (true)
@@ -36,7 +55,7 @@ class Program
             Console.Write("$ "); 
             var consoleInput = Console.ReadLine();
             if (consoleInput == null) continue;
-            var input = consoleInput.Split(" ");
+            var input = consoleInput.Split(" ", StringSplitOptions.RemoveEmptyEntries);
             var command = input[0];
             var message = string.Join(" ", input.Skip(1));
 
@@ -61,8 +80,15 @@ class Program
                 case "echo":
                     Console.WriteLine($"{message}");
                     break;
-                default:
-                    Console.WriteLine($"{command}: command not found");
+                default: //now we assume the command is a program
+                    
+                    var executable = FindExecutableInPath(command);
+                    if (executable == null)
+                    {
+                        Console.WriteLine($"{command}: command not found");
+                        break;
+                    }
+                    RunProgram(executable, message); //message is all words after first word
                     break;
             }
         }
