@@ -92,6 +92,14 @@ class Program
                         break;
                     }
 
+                    if (input[1] == "~")
+                    {
+                        var homePath = Environment.GetEnvironmentVariable("HOME");
+                        if (homePath != null)
+                            Directory.SetCurrentDirectory(homePath);
+                        break;
+                    }
+                    
                     if (!Directory.Exists(input[1]))
                     {
                         Console.WriteLine($"cd: {input[1]}: No such file or directory");
