@@ -21,21 +21,22 @@ class Program
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
         if (paths == null)
             return null;
+        var pathExtensions = Environment.GetEnvironmentVariable("PATHEXT");
         foreach (var path in paths)
         {
             var fullPath = Path.Combine(path, fileName);
-            if (File.Exists(fullPath) && IsExecutable(fullPath))
-                return fullPath;
-                
+            if (!File.Exists(fullPath)) continue;
+            if (string.IsNullOrEmpty(pathExtensions))
+                return null;
+            foreach (var pathExtension in pathExtensions)
+            {
+                var fullPathWithExtension = fullPath + pathExtension;
+                if (IsExecutable(fullPathWithExtension))
+                    return fullPath;
+            }
         }
         return null;
     }
-
-    
-    
-    
-    
-    
     static void Main()
     {
         while (true)
@@ -55,7 +56,7 @@ class Program
                         case "exit" or "quit" or "type" or "echo":
                             Console.WriteLine($"{input[1]} is a shell builtin");
                             break;
-                        default:
+                        default: //assumes we are checking for paths, for now
                             var fullPath = FindExecutableInPath(input[1]);
                             if (fullPath != null)
                             {
@@ -63,7 +64,6 @@ class Program
                             }
                             Console.WriteLine($"{input[1]}: not found");
                             break;
-                            
                     }
                     break;
                 case "exit":
