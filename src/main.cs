@@ -59,11 +59,7 @@ class Program
                             break;
                         default: //assumes we are checking for paths, for now
                             var fullPath = FindExecutableInPath(input[1]);
-                            if (fullPath != null)
-                            {
-                                Console.WriteLine($"{input[1]} is {fullPath}");
-                            }
-                            Console.WriteLine($"{input[1]}: not found");
+                            Console.WriteLine(fullPath != null ? $"{input[1]} is {fullPath}" : $"{input[1]}: not found");
                             break;
                     }
                     break;
