@@ -1,42 +1,15 @@
 class Program
 {
-    /*
-    static bool IsExecutable(string path)
-    {
-        var extension = Path.GetExtension(path);
-        if (string.IsNullOrEmpty(extension))
-            return false;
-
-        var pathExtensions = Environment.GetEnvironmentVariable("PATHEXT");
-        if (string.IsNullOrEmpty(pathExtensions))
-            return false;
-
-        return pathExtensions
-            .Split(';', StringSplitOptions.RemoveEmptyEntries)
-            .Any(e => e.Equals(extension, StringComparison.OrdinalIgnoreCase));
-    }
-    */
-
     static string? FindExecutableInPath(string fileName)
     {
         var paths = Environment.GetEnvironmentVariable("PATH")?
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries);
         if (paths == null)
             return null;
-        //var pathExtensions = Environment.GetEnvironmentVariable("PATHEXT"); //raw
-        //if (string.IsNullOrEmpty(pathExtensions))
-        //    return null;
         foreach (var path in paths)
         {
             var fullPath = Path.Combine(path, fileName);
-            //foreach (var pathExtension in pathExtensions.Split(';', StringSplitOptions.RemoveEmptyEntries))
-            //{
-            //    var fullPathWithExtension = fullPath + pathExtension;
-            //    if (!File.Exists(fullPathWithExtension) || !File.Exists(fullPath)/*test*/) continue;
-            //    
-            //    return fullPath;
-            //}
-            if (File.Exists(fullPath))
+            if (File.Exists(fullPath) || File.GetUnixFileMode(fullPath) == UnixFileMode.UserExecute)
                 return fullPath;
         }
         return null;
