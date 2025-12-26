@@ -33,6 +33,7 @@ class Program
             {
                 var fullPathWithExtension = fullPath + pathExtension;
                 if (!File.Exists(fullPathWithExtension) || !File.Exists(fullPath)/*test*/) continue;
+                
                 return fullPath;
             }
         }
