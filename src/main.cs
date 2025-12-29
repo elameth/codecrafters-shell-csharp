@@ -122,7 +122,7 @@ class Program
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
-                    RunProgram(command, tokenizedInput); //message is word list after first word
+                    RunProgram(command, tokenizedInput.Skip(1).ToList()); //maybe a better way to skip first token?
                     break;
             }
         }
