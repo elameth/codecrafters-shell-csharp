@@ -25,6 +25,20 @@ public class TokenizationHandler
                 currentToken.Append(character);
                 continue;
             } 
+            //escape 2.0
+            if (backSlashedInDoubleQuote) //you have been slashed baby
+            {
+                backSlashedInDoubleQuote = false;
+                switch (character)
+                {
+                    case '"' or '\'':
+                        currentToken.Append(character);
+                        continue;
+                    default: //no special escape, we add the backslash to the string, no edge cases possible I think
+                        currentToken.Append('\\');
+                        continue; 
+                }
+            }
             
             switch (character)
             {
@@ -36,11 +50,11 @@ public class TokenizationHandler
                     continue;
                 case '\\' when !inDoubleQuote && !inSingleQuote && !backSlashed: //because backslash is already an escape character in windows
                 case '\\' when inDoubleQuote:
-                    backSlashed = !backSlashed;
+                    backSlashedInDoubleQuote = !backSlashedInDoubleQuote;
                     continue;
             }
 
-            if (char.IsWhiteSpace(character) && !inDoubleQuote && !inSingleQuote && !backSlashed)
+            if (char.IsWhiteSpace(character) && !inDoubleQuote && !inSingleQuote && !backSlashed && !backSlashedInDoubleQuote)
             {
                 if (currentToken.Length <= 0) continue;
                 tokens.Add(currentToken.ToString());
@@ -48,7 +62,7 @@ public class TokenizationHandler
                 continue;
             }
             //skip
-            if (!backSlashed)
+            if (!backSlashed || !backSlashedInDoubleQuote)
                 currentToken.Append(character);
         }
         if (currentToken.Length > 0)
