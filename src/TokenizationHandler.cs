@@ -12,10 +12,12 @@ public class TokenizationHandler
         
         var tokens = new List<string>();
         var currentToken = new System.Text.StringBuilder(); //the robot suggested this
-        bool inSingleQuote = false, inDoubleQuote = false, backSlashed = false;
+        bool inSingleQuote = false, inDoubleQuote = false; 
+        bool backSlashed = false, backSlashedInDoubleQuote = false; //this is way too specific of a bool probably
 
         foreach (var character in input)
         {
+            
             //escape
             if (backSlashed)
             {
@@ -33,6 +35,7 @@ public class TokenizationHandler
                     inDoubleQuote = !inDoubleQuote; 
                     continue;
                 case '\\' when !inDoubleQuote && !inSingleQuote && !backSlashed: //because backslash is already an escape character in windows
+                case '\\' when inDoubleQuote:
                     backSlashed = !backSlashed;
                     continue;
             }
