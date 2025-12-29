@@ -31,7 +31,7 @@ public class TokenizationHandler
                 backSlashedInDoubleQuote = false;
                 switch (character)
                 {
-                    case '"' or '\'':
+                    case '"' or '\\':
                         currentToken.Append(character);
                         continue;
                     default: //no special escape, we add the backslash to the string, no edge cases possible I think
