@@ -49,6 +49,8 @@ public class TokenizationHandler
                     inDoubleQuote = !inDoubleQuote; 
                     continue;
                 case '\\' when !inDoubleQuote && !inSingleQuote && !backSlashed: //because backslash is already an escape character in windows
+                    backSlashed = !backSlashed;
+                    continue;
                 case '\\' when inDoubleQuote:
                     backSlashedInDoubleQuote = !backSlashedInDoubleQuote;
                     continue;
