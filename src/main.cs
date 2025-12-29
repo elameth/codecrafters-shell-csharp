@@ -46,9 +46,14 @@ class Program
         
         using var process = Process.Start(psi);
         if (process == null) return;
-        
+
         if (redirectFile != null)
+        {
+            var dir = Path.GetDirectoryName(redirectFile);
+            if (!string.IsNullOrEmpty(dir)) 
+                Directory.CreateDirectory(dir);
             File.WriteAllText(redirectFile, process.StandardOutput.ReadToEnd());
+        }
         else
             Console.Write(process.StandardOutput.ReadToEnd());
         process?.WaitForExit();
@@ -93,7 +98,6 @@ class Program
                 var redirectWriter = new StreamWriter(redirectFile, append: false);
                 redirectWriter.AutoFlush = true;
                 Console.SetOut(redirectWriter);
-                continue;
             }
 
             switch (command)
@@ -151,7 +155,7 @@ class Program
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
-                    RunProgram(command, arguments, redirectFile); //maybe a better way to skip first token?
+                    RunProgram(executable, arguments, redirectFile); //maybe a better way to skip first token?
                     break;
             }
         }
