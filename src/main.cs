@@ -45,6 +45,12 @@ class Program
             psi.ArgumentList.Add(argument);
         
         using var process = Process.Start(psi);
+        if (process == null) return;
+        
+        if (redirectFile != null)
+            File.WriteAllText(redirectFile, process.StandardOutput.ReadToEnd());
+        else
+            Console.Write(process.StandardOutput.ReadToEnd());
         process?.WaitForExit();
     }
     
