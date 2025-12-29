@@ -48,8 +48,12 @@ class Program
     }
     
     
+    
     static void Main()
     {
+        var redirectSet = new HashSet<string> { ">", "1>" };
+        
+
         while (true)
         {
             Console.Write("$ "); 
@@ -63,6 +67,23 @@ class Program
             }
             var command = tokenizedInput[0];
             var message = string.Join(" ", tokenizedInput.Skip(1));
+            
+          
+            var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>");
+            //redirect needed or not
+            if (redirectionIndex != -1)
+            {
+                if (redirectionIndex + 1 >= tokenizedInput.Count)
+                {
+                    Console.WriteLine("syntax error: expected filename after >");
+                    continue;
+                }
+
+                var redirectFile = tokenizedInput[redirectionIndex + 1];
+                var redirectWriter = new StreamWriter(redirectFile, append: false);
+                redirectWriter.AutoFlush = true;
+                Console.SetOut(redirectWriter);
+            }
 
             switch (command)
             {
