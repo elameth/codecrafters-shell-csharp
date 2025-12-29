@@ -39,7 +39,8 @@ class Program
         {
             FileName = fullPath,
             UseShellExecute = false,
-            RedirectStandardOutput = redirectFile != null
+            RedirectStandardOutput = redirectFile != null,
+            RedirectStandardError = false
         };
         foreach (var argument in arguments)
             psi.ArgumentList.Add(argument);
@@ -49,16 +50,32 @@ class Program
 
         if (redirectFile != null)
         {
+            var output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            var dir = Path.GetDirectoryName(redirectFile);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) 
+                Directory.CreateDirectory(dir);
+            File.WriteAllText(redirectFile, output);
+        }
+        else
+            process?.WaitForExit();
+    }
+    
+    // NEW: Helper to handle writing for built-ins
+    static void WriteOutput(string content, string? redirectFile)
+    {
+        if (redirectFile != null)
+        {
             var dir = Path.GetDirectoryName(redirectFile);
             if (!string.IsNullOrEmpty(dir)) 
                 Directory.CreateDirectory(dir);
-            File.WriteAllText(redirectFile, process.StandardOutput.ReadToEnd());
+            File.WriteAllText(redirectFile, content + Environment.NewLine);
         }
         else
-            Console.Write(process.StandardOutput.ReadToEnd());
-        process?.WaitForExit();
+        {
+            Console.WriteLine(content);
+        }
     }
-    
     
     
     static void Main()
@@ -68,7 +85,6 @@ class Program
 
         while (true)
         {
-            Console.SetOut(Console.Out); //reset
             Console.Write("$ "); 
             var consoleInput = Console.ReadLine();
             if (consoleInput == null) continue;
@@ -78,9 +94,7 @@ class Program
                 Console.WriteLine($"{consoleInput}: input not found");
                 continue;
             }
-            var command = tokenizedInput[0];
-            var message = string.Join(" ", tokenizedInput.Skip(1));
-            var arguments = tokenizedInput.Skip(1).ToList();
+
           
             var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>");
             string? redirectFile = null;
@@ -94,11 +108,12 @@ class Program
                 }
 
                 redirectFile = tokenizedInput[redirectionIndex + 1];
-                arguments = tokenizedInput.Skip(1).Take(redirectionIndex - 1).ToList(); //NEW ARGUMENTS FOR REDIRECTION
-                var redirectWriter = new StreamWriter(redirectFile, append: false);
-                redirectWriter.AutoFlush = true;
-                Console.SetOut(redirectWriter);
+                tokenizedInput = tokenizedInput.Take(redirectionIndex).ToList(); //DANGEROUS 
             }
+            
+            var command = tokenizedInput[0];
+            var arguments = tokenizedInput.Skip(1).ToList();
+            var message = string.Join(" ", arguments);
 
             switch (command)
             {
@@ -119,10 +134,10 @@ class Program
                     Console.WriteLine("exit");
                     return;
                 case "echo":
-                    Console.WriteLine($"{message}");
+                    WriteOutput(message, redirectFile);
                     break;
                 case "pwd":
-                    Console.WriteLine($"{Directory.GetCurrentDirectory()}");
+                    WriteOutput(Directory.GetCurrentDirectory(), redirectFile);
                     break;
                 case "cd":
                     if (tokenizedInput.Count < 2)
