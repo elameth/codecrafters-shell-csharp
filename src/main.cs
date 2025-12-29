@@ -93,6 +93,7 @@ class Program
                 var redirectWriter = new StreamWriter(redirectFile, append: false);
                 redirectWriter.AutoFlush = true;
                 Console.SetOut(redirectWriter);
+                continue;
             }
 
             switch (command)
