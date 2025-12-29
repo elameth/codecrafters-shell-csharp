@@ -33,12 +33,13 @@ class Program
         return null;
     }
 
-    static void RunProgram(string fullPath, List<string> arguments)
+    static void RunProgram(string fullPath, List<string> arguments, string? redirectFile)
     {
         var psi = new ProcessStartInfo
         {
             FileName = fullPath,
-            UseShellExecute = false
+            UseShellExecute = false,
+            RedirectStandardOutput = redirectFile != null
         };
         foreach (var argument in arguments)
             psi.ArgumentList.Add(argument);
@@ -71,6 +72,7 @@ class Program
             var arguments = tokenizedInput.Skip(1).ToList();
           
             var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>");
+            string? redirectFile = null;
             //redirect needed or not
             if (redirectionIndex != -1)
             {
@@ -80,8 +82,8 @@ class Program
                     continue;
                 }
 
-                var redirectFile = tokenizedInput[redirectionIndex + 1];
-                arguments = tokenizedInput.Skip(redirectionIndex + 1).ToList(); //NEW ARGUMENTS FOR REDIRECTION
+                redirectFile = tokenizedInput[redirectionIndex + 1];
+                arguments = tokenizedInput.Skip(1).Take(redirectionIndex - 1).ToList(); //NEW ARGUMENTS FOR REDIRECTION
                 var redirectWriter = new StreamWriter(redirectFile, append: false);
                 redirectWriter.AutoFlush = true;
                 Console.SetOut(redirectWriter);
@@ -142,7 +144,7 @@ class Program
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
-                    RunProgram(command, arguments); //maybe a better way to skip first token?
+                    RunProgram(command, arguments, redirectFile); //maybe a better way to skip first token?
                     break;
             }
         }
