@@ -36,6 +36,7 @@ public class TokenizationHandler
                         continue;
                     default: //no special escape, we add the backslash to the string, no edge cases possible I think
                         currentToken.Append('\\');
+                        currentToken.Append(character);
                         continue; 
                 }
             }
