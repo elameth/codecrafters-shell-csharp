@@ -170,7 +170,7 @@ class Program
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
-                    RunProgram(executable, arguments, redirectFile); //maybe a better way to skip first token?
+                    RunProgram(command, arguments, redirectFile); //maybe a better way to skip first token?
                     break;
             }
         }
