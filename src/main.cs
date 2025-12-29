@@ -36,15 +36,16 @@ class Program
         return null;
     }
 
-    static void RunProgram(string fullPath, string arguments)
+    static void RunProgram(string fullPath, List<string> arguments)
     {
         var psi = new ProcessStartInfo
         {
             FileName = fullPath,
-            Arguments = arguments,
             UseShellExecute = false
-
         };
+        foreach (var argument in arguments)
+            psi.ArgumentList.Add(argument);
+        
         using var process = Process.Start(psi);
         process?.WaitForExit();
     }
@@ -57,22 +58,27 @@ class Program
             Console.Write("$ "); 
             var consoleInput = Console.ReadLine();
             if (consoleInput == null) continue;
-            var input = consoleInput.Split(" ", StringSplitOptions.RemoveEmptyEntries);
-            var command = input[0];
-            var message = string.Join(" ", input.Skip(1));
+            var tokenizedInput = TokenizationHandler.Tokenize(consoleInput);
+            if (tokenizedInput == null)
+            {
+                Console.WriteLine($"{consoleInput}: input not found");
+                continue;
+            }
+            var command = tokenizedInput[0];
+            var message = string.Join(" ", tokenizedInput.Skip(1));
 
             switch (command)
             {
                 case "type":
-                    if (input.Length < 2) { Console.WriteLine("type: missing argument"); break; }
-                    switch (input[1])
+                    if (tokenizedInput.Count < 2) { Console.WriteLine("type: missing argument"); break; }
+                    switch (tokenizedInput[1])
                     {
                         case "exit" or "quit" or "type" or "echo" or "pwd":
-                            Console.WriteLine($"{input[1]} is a shell builtin");
+                            Console.WriteLine($"{tokenizedInput[1]} is a shell builtin");
                             break;
                         default: //assumes we are checking for paths, for now
-                            var fullPath = FindExecutableInPath(input[1]);
-                            Console.WriteLine(fullPath != null ? $"{input[1]} is {fullPath}" : $"{input[1]}: not found");
+                            var fullPath = FindExecutableInPath(tokenizedInput[1]);
+                            Console.WriteLine(fullPath != null ? $"{tokenizedInput[1]} is {fullPath}" : $"{tokenizedInput[1]}: not found");
                             break;
                     }
                     break;
@@ -86,13 +92,13 @@ class Program
                     Console.WriteLine($"{Directory.GetCurrentDirectory()}");
                     break;
                 case "cd":
-                    if (input.Length < 2)
+                    if (tokenizedInput.Count < 2)
                     {
                         Console.WriteLine("cd: missing argument"); 
                         break;
                     }
 
-                    if (input[1] == "~")
+                    if (tokenizedInput[1] == "~")
                     {
                         var homePath = Environment.GetEnvironmentVariable("HOME");
                         if (homePath != null)
@@ -100,12 +106,12 @@ class Program
                         break;
                     }
                     
-                    if (!Directory.Exists(input[1]))
+                    if (!Directory.Exists(tokenizedInput[1]))
                     {
-                        Console.WriteLine($"cd: {input[1]}: No such file or directory");
+                        Console.WriteLine($"cd: {tokenizedInput[1]}: No such file or directory");
                         break;
                     }
-                    Directory.SetCurrentDirectory(input[1]);
+                    Directory.SetCurrentDirectory(tokenizedInput[1]);
                     break;
                 
                 default: //now we assume the command is a program
@@ -116,7 +122,7 @@ class Program
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
-                    RunProgram(command, message); //message is all words after first word
+                    RunProgram(command, tokenizedInput); //message is word list after first word
                     break;
             }
         }
