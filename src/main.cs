@@ -18,9 +18,6 @@ class Program
             return false;
         }
     }
-
-    
-    
     static string? FindExecutableInPath(string fileName)
     {
         var paths = Environment.GetEnvironmentVariable("PATH")?
@@ -100,7 +97,7 @@ class Program
 
                     if (tokenizedInput[1] == "~")
                     {
-                        var homePath = Environment.GetEnvironmentVariable("HOME");
+                        var homePath = Environment.GetEnvironmentVariable("HOME");//this might be different in windows, check when adding windows
                         if (homePath != null)
                             Directory.SetCurrentDirectory(homePath);
                         break;

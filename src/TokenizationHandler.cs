@@ -12,29 +12,41 @@ public class TokenizationHandler
         
         var tokens = new List<string>();
         var currentToken = new System.Text.StringBuilder(); //the robot suggested this
-        bool inSingleQuote = false, inDoubleQuote = false;
+        bool inSingleQuote = false, inDoubleQuote = false, backSlashed = false;
 
         foreach (var character in input)
         {
+            //escape
+            if (backSlashed)
+            {
+                backSlashed = false;
+                currentToken.Append(character);
+                continue;
+            } 
+            
             switch (character)
             {
-                //I had no idea how to convey this, my thanks to the robot
-                case '\'' when !inDoubleQuote:
+                case '\'' when !inDoubleQuote && !backSlashed:
                     inSingleQuote = !inSingleQuote; 
                     continue;
-                case '"' when !inSingleQuote:
+                case '"' when !inSingleQuote  && !backSlashed:
                     inDoubleQuote = !inDoubleQuote; 
+                    continue;
+                case '\\' when !inDoubleQuote && !inSingleQuote && !backSlashed: //because backslash is already an escape character in windows
+                    backSlashed = !backSlashed;
                     continue;
             }
 
-            if (char.IsWhiteSpace(character) && !inDoubleQuote && !inSingleQuote)
+            if (char.IsWhiteSpace(character) && !inDoubleQuote && !inSingleQuote && !backSlashed)
             {
                 if (currentToken.Length <= 0) continue;
                 tokens.Add(currentToken.ToString());
                 currentToken.Clear();
                 continue;
             }
-            currentToken.Append(character);
+            //skip
+            if (!backSlashed)
+                currentToken.Append(character);
         }
         if (currentToken.Length > 0)
             tokens.Add(currentToken.ToString());
