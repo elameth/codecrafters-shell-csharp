@@ -51,11 +51,12 @@ class Program
     
     static void Main()
     {
-        var redirectSet = new HashSet<string> { ">", "1>" };
+        //var redirectSet = new HashSet<string> { ">", "1>" };
         
 
         while (true)
         {
+            Console.SetOut(Console.Out); //reset
             Console.Write("$ "); 
             var consoleInput = Console.ReadLine();
             if (consoleInput == null) continue;
@@ -67,7 +68,7 @@ class Program
             }
             var command = tokenizedInput[0];
             var message = string.Join(" ", tokenizedInput.Skip(1));
-            
+            var arguments = tokenizedInput.Skip(1).ToList();
           
             var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>");
             //redirect needed or not
@@ -80,6 +81,7 @@ class Program
                 }
 
                 var redirectFile = tokenizedInput[redirectionIndex + 1];
+                arguments = tokenizedInput.Skip(redirectionIndex + 1).ToList(); //NEW ARGUMENTS FOR REDIRECTION
                 var redirectWriter = new StreamWriter(redirectFile, append: false);
                 redirectWriter.AutoFlush = true;
                 Console.SetOut(redirectWriter);
@@ -140,7 +142,7 @@ class Program
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
-                    RunProgram(command, tokenizedInput.Skip(1).ToList()); //maybe a better way to skip first token?
+                    RunProgram(command, arguments); //maybe a better way to skip first token?
                     break;
             }
         }
