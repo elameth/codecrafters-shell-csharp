@@ -33,14 +33,14 @@ class Program
         return null;
     }
 
-    static void RunProgram(string fullPath, List<string> arguments, string? redirectFile)
+    static void RunProgram(string fullPath, List<string> arguments, string? redirectFile, string? redirectStdError)
     {
         var psi = new ProcessStartInfo
         {
             FileName = fullPath,
             UseShellExecute = false,
             RedirectStandardOutput = redirectFile != null,
-            RedirectStandardError = false
+            RedirectStandardError = redirectStdError != null
         };
         foreach (var argument in arguments)
             psi.ArgumentList.Add(argument);
@@ -57,8 +57,18 @@ class Program
                 Directory.CreateDirectory(dir);
             File.WriteAllText(redirectFile, output);
         }
+
+        if (redirectStdError != null)
+        {
+            var output = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+            var dir = Path.GetDirectoryName(redirectStdError);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) 
+                Directory.CreateDirectory(dir);
+            File.WriteAllText(redirectStdError, output);
+        }
         else
-            process?.WaitForExit();
+            process.WaitForExit();
     }
     
     // NEW: Helper to handle writing for built-ins
@@ -97,7 +107,9 @@ class Program
 
           
             var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>");
+            var errorRedirectionIndex = tokenizedInput.FindIndex(t => t is "2>");
             string? redirectFile = null;
+            string? errorRedirectionFile = null;
             //redirect needed or not
             if (redirectionIndex != -1)
             {
@@ -110,11 +122,22 @@ class Program
                 redirectFile = tokenizedInput[redirectionIndex + 1];
                 tokenizedInput = tokenizedInput.Take(redirectionIndex).ToList(); //DANGEROUS 
             }
+
+            if (errorRedirectionIndex != -1)
+            {
+                if (errorRedirectionIndex + 1 >= tokenizedInput.Count)
+                {
+                    Console.WriteLine("syntax error: expected filename after >");
+                    continue;
+                }
+                errorRedirectionFile =  tokenizedInput[errorRedirectionIndex + 1];
+                tokenizedInput = tokenizedInput.Take(errorRedirectionIndex).ToList();
+            }
             
             var command = tokenizedInput[0];
             var arguments = tokenizedInput.Skip(1).ToList();
             var message = string.Join(" ", arguments);
-
+            
             switch (command)
             {
                 case "type":
@@ -126,7 +149,14 @@ class Program
                             break;
                         default: //assumes we are checking for paths, for now
                             var fullPath = FindExecutableInPath(tokenizedInput[1]);
-                            Console.WriteLine(fullPath != null ? $"{tokenizedInput[1]} is {fullPath}" : $"{tokenizedInput[1]}: not found");
+                            if (fullPath != null)
+                            {
+                                Console.WriteLine($"{tokenizedInput[1]} is {fullPath}");
+                            }
+                            else
+                            {
+                                WriteOutput($"{tokenizedInput[1]}: not found", errorRedirectionFile);
+                            }
                             break;
                     }
                     break;
@@ -142,7 +172,7 @@ class Program
                 case "cd":
                     if (tokenizedInput.Count < 2)
                     {
-                        Console.WriteLine("cd: missing argument"); 
+                        WriteOutput("cd: missing argument", errorRedirectionFile); 
                         break;
                     }
 
@@ -156,7 +186,7 @@ class Program
                     
                     if (!Directory.Exists(tokenizedInput[1]))
                     {
-                        Console.WriteLine($"cd: {tokenizedInput[1]}: No such file or directory");
+                        WriteOutput($"cd: {tokenizedInput[1]}: No such file or directory", errorRedirectionFile);
                         break;
                     }
                     Directory.SetCurrentDirectory(tokenizedInput[1]);
@@ -166,11 +196,11 @@ class Program
                     var executable = FindExecutableInPath(command);
                     if (executable == null)
                     {
-                        Console.WriteLine($"{command}: command not found");
+                        WriteOutput($"{command}: command not found", errorRedirectionFile);
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
-                    RunProgram(command, arguments, redirectFile); //maybe a better way to skip first token?
+                    RunProgram(command, arguments, redirectFile, errorRedirectionFile); //maybe a better way to skip first token?
                     break;
             }
         }
