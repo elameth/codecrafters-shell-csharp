@@ -106,7 +106,7 @@ class Program
             }
 
           
-            var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>");
+            var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>" and not "2>");
             var errorRedirectionIndex = tokenizedInput.FindIndex(t => t is "2>");
             string? redirectFile = null;
             string? errorRedirectionFile = null;
@@ -132,6 +132,10 @@ class Program
                 }
                 errorRedirectionFile =  tokenizedInput[errorRedirectionIndex + 1];
                 tokenizedInput = tokenizedInput.Take(errorRedirectionIndex).ToList();
+                //this is a cheap solution. I should refactor this later
+                var dir = Path.GetDirectoryName(errorRedirectionFile);
+                if (!string.IsNullOrEmpty(dir)) 
+                    Directory.CreateDirectory(dir);
             }
             
             var command = tokenizedInput[0];
