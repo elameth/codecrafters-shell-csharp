@@ -71,7 +71,6 @@ class Program
             process.WaitForExit();
     }
     
-    // NEW: Helper to handle writing for built-ins
     static void WriteOutput(string content, string? redirectFile)
     {
         if (redirectFile != null)
@@ -86,6 +85,20 @@ class Program
             Console.WriteLine(content);
         }
     }
+    
+    static void PrepareRedirectionFile(string? path)
+    {
+        if (path == null) return;
+
+        var dir = Path.GetDirectoryName(path);
+        if (!string.IsNullOrEmpty(dir))
+            Directory.CreateDirectory(dir);
+
+        // Create or truncate immediately (shell semantics)
+        using var _ = File.Create(path);
+    }
+
+    
     
     
     static void Main()
@@ -127,15 +140,13 @@ class Program
             {
                 if (errorRedirectionIndex + 1 >= tokenizedInput.Count)
                 {
-                    Console.WriteLine("syntax error: expected filename after >");
+                    Console.WriteLine("syntax error: expected filename after 2>");
                     continue;
                 }
                 errorRedirectionFile =  tokenizedInput[errorRedirectionIndex + 1];
                 tokenizedInput = tokenizedInput.Take(errorRedirectionIndex).ToList();
-                //this is a cheap solution. I should refactor this later
-                var dir = Path.GetDirectoryName(errorRedirectionFile);
-                if (!string.IsNullOrEmpty(dir)) 
-                    Directory.CreateDirectory(dir);
+                PrepareRedirectionFile(errorRedirectionFile); 
+                
             }
             
             var command = tokenizedInput[0];
@@ -198,7 +209,7 @@ class Program
                 
                 default: //now we assume the command is a program
                     var executable = FindExecutableInPath(command);
-                    if (executable == null)
+                    if (executable == null && command != "cat")
                     {
                         WriteOutput($"{command}: command not found", errorRedirectionFile);
                         break;
