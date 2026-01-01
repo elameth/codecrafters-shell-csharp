@@ -120,7 +120,7 @@ class Program
 
         while (true)
         {
-            bool append = false;
+            var append = false;
             Console.Write("$ "); 
             var consoleInput = Console.ReadLine();
             if (consoleInput == null) continue;
@@ -132,7 +132,7 @@ class Program
             }
 
           
-            var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>" and not "2>");
+            var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>");
             var errorRedirectionIndex = tokenizedInput.FindIndex(t => t is "2>");
             var appendRedirectionIndex = tokenizedInput.FindIndex(t => t is ">>" or "1>>");
             var appendErrorRedirectionIndex = tokenizedInput.FindIndex(t => t is "2>>");
@@ -249,13 +249,13 @@ class Program
                 
                 default: //now we assume the command is a program
                     var executable = FindExecutableInPath(command);
-                    if (executable == null && command != "cat")
+                    if (executable == null)
                     {
                         WriteOutput($"{command}: command not found", errorRedirectionFile, append);
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
-                    RunProgram(command, arguments, redirectFile, errorRedirectionFile, append); //maybe a better way to skip first token?
+                    RunProgram(executable, arguments, redirectFile, errorRedirectionFile, append); //maybe a better way to skip first token?
                     break;
             }
         }
