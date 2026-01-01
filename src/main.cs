@@ -166,9 +166,10 @@ class Program
                 if (appendErrorRedirectionIndex + 1 >= tokenizedInput.Count)
                 {
                     Console.WriteLine("syntax error: expected filename after 2>>");
+                    continue;
                 }
                 errorRedirectionFile = tokenizedInput[appendErrorRedirectionIndex + 1];
-                tokenizedInput = tokenizedInput.Take(errorRedirectionIndex).ToList();
+                tokenizedInput = tokenizedInput.Take(appendErrorRedirectionIndex).ToList();
                 PrepareRedirectionFile(errorRedirectionFile);
             }
 
