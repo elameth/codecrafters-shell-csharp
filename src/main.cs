@@ -55,6 +55,10 @@ class Program
             var dir = Path.GetDirectoryName(redirectFile);
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) 
                 Directory.CreateDirectory(dir);
+            if (!File.Exists(dir))
+            {
+                using var _ = File.Create(dir); // create if missing
+            }
             if (append)
                 File.AppendAllText(redirectFile, output);
             else
@@ -68,6 +72,10 @@ class Program
             var dir = Path.GetDirectoryName(redirectStdError);
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) 
                 Directory.CreateDirectory(dir);
+            if (!File.Exists(dir))
+            {
+                using var _ = File.Create(dir); // create if missing
+            }
             if (append)
                 File.AppendAllText(redirectStdError, output);
             else
