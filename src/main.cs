@@ -1,7 +1,7 @@
 using System.Diagnostics;
 
 //to add: linux or windows checks, and compatibility for both
-
+//NEXT TIME YOU OPEN THIS: PLEASE REFACTOR THIS CODE BEFORE GOING FURTHER. I CAN USE WAY LESS REPEATED CODE.
 class Program
 {
     
@@ -71,14 +71,17 @@ class Program
             process.WaitForExit();
     }
     
-    static void WriteOutput(string content, string? redirectFile)
+    static void WriteOutput(string content, string? redirectFile, bool append)
     {
         if (redirectFile != null)
         {
             var dir = Path.GetDirectoryName(redirectFile);
             if (!string.IsNullOrEmpty(dir)) 
                 Directory.CreateDirectory(dir);
-            File.WriteAllText(redirectFile, content + Environment.NewLine);
+            if (append)
+                File.AppendAllText(redirectFile, content + Environment.NewLine);
+            else
+                File.WriteAllText(redirectFile, content + Environment.NewLine);
         }
         else
         {
@@ -108,6 +111,7 @@ class Program
 
         while (true)
         {
+            bool append = false;
             Console.Write("$ "); 
             var consoleInput = Console.ReadLine();
             if (consoleInput == null) continue;
@@ -121,6 +125,8 @@ class Program
           
             var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>" and not "2>");
             var errorRedirectionIndex = tokenizedInput.FindIndex(t => t is "2>");
+            var appendRedirectionIndex = tokenizedInput.FindIndex(t => t is ">>");
+            
             string? redirectFile = null;
             string? errorRedirectionFile = null;
             //redirect needed or not
@@ -148,6 +154,19 @@ class Program
                 PrepareRedirectionFile(errorRedirectionFile); 
                 
             }
+
+            if (appendRedirectionIndex != -1)
+            {
+                if (appendRedirectionIndex + 1 >= tokenizedInput.Count)
+                {
+                    Console.WriteLine("syntax error: expected filename after >>");
+                    continue;
+                }
+                append = true;
+                redirectFile = tokenizedInput[appendRedirectionIndex + 1];
+                tokenizedInput = tokenizedInput.Take(appendRedirectionIndex).ToList();
+                PrepareRedirectionFile(redirectFile);
+            }
             
             var command = tokenizedInput[0];
             var arguments = tokenizedInput.Skip(1).ToList();
@@ -170,7 +189,7 @@ class Program
                             }
                             else
                             {
-                                WriteOutput($"{tokenizedInput[1]}: not found", errorRedirectionFile);
+                                WriteOutput($"{tokenizedInput[1]}: not found", errorRedirectionFile, append);
                             }
                             break;
                     }
@@ -179,15 +198,15 @@ class Program
                     Console.WriteLine("exit");
                     return;
                 case "echo":
-                    WriteOutput(message, redirectFile);
+                    WriteOutput(message, redirectFile, append);
                     break;
                 case "pwd":
-                    WriteOutput(Directory.GetCurrentDirectory(), redirectFile);
+                    WriteOutput(Directory.GetCurrentDirectory(), redirectFile, append);
                     break;
                 case "cd":
                     if (tokenizedInput.Count < 2)
                     {
-                        WriteOutput("cd: missing argument", errorRedirectionFile); 
+                        WriteOutput("cd: missing argument", errorRedirectionFile, append); 
                         break;
                     }
 
@@ -201,7 +220,7 @@ class Program
                     
                     if (!Directory.Exists(tokenizedInput[1]))
                     {
-                        WriteOutput($"cd: {tokenizedInput[1]}: No such file or directory", errorRedirectionFile);
+                        WriteOutput($"cd: {tokenizedInput[1]}: No such file or directory", errorRedirectionFile, append);
                         break;
                     }
                     Directory.SetCurrentDirectory(tokenizedInput[1]);
@@ -211,7 +230,7 @@ class Program
                     var executable = FindExecutableInPath(command);
                     if (executable == null && command != "cat")
                     {
-                        WriteOutput($"{command}: command not found", errorRedirectionFile);
+                        WriteOutput($"{command}: command not found", errorRedirectionFile, append);
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
