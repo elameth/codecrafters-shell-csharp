@@ -33,7 +33,7 @@ class Program
         return null;
     }
 
-    static void RunProgram(string fullPath, List<string> arguments, string? redirectFile, string? redirectStdError)
+    static void RunProgram(string fullPath, List<string> arguments, string? redirectFile, string? redirectStdError, bool append)
     {
         var psi = new ProcessStartInfo
         {
@@ -55,7 +55,10 @@ class Program
             var dir = Path.GetDirectoryName(redirectFile);
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) 
                 Directory.CreateDirectory(dir);
-            File.WriteAllText(redirectFile, output);
+            if (append)
+                File.AppendAllText(redirectFile, output);
+            else
+                File.WriteAllText(redirectFile, output);
         }
 
         if (redirectStdError != null)
