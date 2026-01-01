@@ -100,8 +100,11 @@ class Program
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
 
-        // Create or truncate immediately (shell semantics)
-        using var _ = File.Create(path);
+        // Create or truncate immediately
+        if (!File.Exists(path))
+        {
+            using var _ = File.Create(path); // create if missing
+        }
     }
 
     
