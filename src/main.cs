@@ -55,10 +55,6 @@ class Program
             var dir = Path.GetDirectoryName(redirectFile);
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) 
                 Directory.CreateDirectory(dir);
-            if (!File.Exists(dir))
-            {
-                using var _ = File.Create(dir); // create if missing
-            }
             if (append)
                 File.AppendAllText(redirectFile, output);
             else
@@ -72,10 +68,6 @@ class Program
             var dir = Path.GetDirectoryName(redirectStdError);
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) 
                 Directory.CreateDirectory(dir);
-            if (!File.Exists(dir))
-            {
-                using var _ = File.Create(dir); // create if missing
-            }
             if (append)
                 File.AppendAllText(redirectStdError, output);
             else
@@ -154,7 +146,6 @@ class Program
                     Console.WriteLine("syntax error: expected filename after >");
                     continue;
                 }
-
                 redirectFile = tokenizedInput[redirectionIndex + 1];
                 tokenizedInput = tokenizedInput.Take(redirectionIndex).ToList(); //DANGEROUS 
             }
@@ -179,6 +170,7 @@ class Program
                     Console.WriteLine("syntax error: expected filename after 2>>");
                     continue;
                 }
+                append = true;
                 errorRedirectionFile = tokenizedInput[appendErrorRedirectionIndex + 1];
                 tokenizedInput = tokenizedInput.Take(appendErrorRedirectionIndex).ToList();
                 PrepareRedirectionFile(errorRedirectionFile);
