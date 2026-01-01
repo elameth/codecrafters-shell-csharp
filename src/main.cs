@@ -132,7 +132,7 @@ class Program
             var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>" and not "2>");
             var errorRedirectionIndex = tokenizedInput.FindIndex(t => t is "2>");
             var appendRedirectionIndex = tokenizedInput.FindIndex(t => t is ">>" or "1>>");
-            
+            var appendErrorRedirectionIndex = tokenizedInput.FindIndex(t => t is "2>>");
             string? redirectFile = null;
             string? errorRedirectionFile = null;
             //redirect needed or not
@@ -159,6 +159,17 @@ class Program
                 tokenizedInput = tokenizedInput.Take(errorRedirectionIndex).ToList();
                 PrepareRedirectionFile(errorRedirectionFile); 
                 
+            }
+
+            if (appendErrorRedirectionIndex != -1)
+            {
+                if (appendErrorRedirectionIndex + 1 >= tokenizedInput.Count)
+                {
+                    Console.WriteLine("syntax error: expected filename after 2>>");
+                }
+                errorRedirectionFile = tokenizedInput[appendErrorRedirectionIndex + 1];
+                tokenizedInput = tokenizedInput.Take(errorRedirectionIndex).ToList();
+                PrepareRedirectionFile(errorRedirectionFile);
             }
 
             if (appendRedirectionIndex != -1)
