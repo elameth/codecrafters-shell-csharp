@@ -125,7 +125,7 @@ class Program
           
             var redirectionIndex = tokenizedInput.FindIndex(t => t is ">" or "1>" and not "2>");
             var errorRedirectionIndex = tokenizedInput.FindIndex(t => t is "2>");
-            var appendRedirectionIndex = tokenizedInput.FindIndex(t => t is ">>");
+            var appendRedirectionIndex = tokenizedInput.FindIndex(t => t is ">>" or "1>>");
             
             string? redirectFile = null;
             string? errorRedirectionFile = null;
