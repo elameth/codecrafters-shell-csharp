@@ -68,7 +68,10 @@ class Program
             var dir = Path.GetDirectoryName(redirectStdError);
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) 
                 Directory.CreateDirectory(dir);
-            File.WriteAllText(redirectStdError, output);
+            if (append)
+                File.AppendAllText(redirectStdError, output);
+            else
+                File.WriteAllText(redirectStdError, output);
         }
         else
             process.WaitForExit();
