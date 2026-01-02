@@ -45,7 +45,6 @@ class Program
             RedirectStandardError = redirectStdError != null
         };
         
-        psi.ArgumentList.Add(commandName);
         foreach (var argument in arguments)
             psi.ArgumentList.Add(argument);
         
