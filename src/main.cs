@@ -33,15 +33,19 @@ class Program
         return null;
     }
 
-    static void RunProgram(string fullPath, List<string> arguments, string? redirectFile, string? redirectStdError, bool append)
+    static void RunProgram(string fullPath, List<string> arguments, string? redirectFile, string? redirectStdError, bool append,  string commandName)
     {
+        var executableDir = Path.GetDirectoryName(fullPath)!;
         var psi = new ProcessStartInfo
         {
-            FileName = fullPath,
+            FileName = commandName,
+            WorkingDirectory = executableDir,
             UseShellExecute = false,
             RedirectStandardOutput = redirectFile != null,
             RedirectStandardError = redirectStdError != null
         };
+        
+        psi.ArgumentList.Add(commandName);
         foreach (var argument in arguments)
             psi.ArgumentList.Add(argument);
         
@@ -255,7 +259,7 @@ class Program
                         break;
                     }
                     //giving the full path executable gave a test log error (it works, however console output is the path instead of executable name, so I am writing just the name for now, should be full executable normally 
-                    RunProgram(executable, arguments, redirectFile, errorRedirectionFile, append); //maybe a better way to skip first token?
+                    RunProgram(executable, arguments, redirectFile, errorRedirectionFile, append, command); //maybe a better way to skip first token?
                     break;
             }
         }
