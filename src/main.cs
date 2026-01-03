@@ -122,7 +122,7 @@ class Program
         {
             var append = false;
             
-            var consoleInput = ReadLine.Read("$ ");
+            var consoleInput = ReadLine.Read("$ ")?.Trim();
             if (consoleInput == null) continue;
             var tokenizedInput = TokenizationHandler.Tokenize(consoleInput);
             if (tokenizedInput == null)
