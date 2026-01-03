@@ -1,6 +1,4 @@
 ﻿
-
-
 public class AutoCompletionHandler : IAutoCompleteHandler
 
 {
@@ -13,11 +11,11 @@ public class AutoCompletionHandler : IAutoCompleteHandler
     public string[] GetSuggestions(string text, int index)
     {
         if (text.StartsWith("ech"))
-            return new string [] { "echo" };
+            return new[] { "echo " };
         if (text.StartsWith("exi"))
-            return new string[] { "exit" };
-        else
-            return null;
+            return new[] { "exit " };
+        return Array.Empty<string>();
     }
+
     
 }

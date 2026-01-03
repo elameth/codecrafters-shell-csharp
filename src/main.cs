@@ -1,5 +1,4 @@
 using System.Diagnostics;
-
 //to add: linux or windows checks, and compatibility for both
 class Program
 {
