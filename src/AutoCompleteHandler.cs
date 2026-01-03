@@ -7,9 +7,13 @@ public class AutoCompletionHandler : IAutoCompleteHandler
 
     public string[] GetSuggestions(string text, int index)
     {
-        return builtins
-            .Where(b => b.StartsWith(text))
-            .Select(b => b.Substring(text.Length) + " ")
-            .ToArray();
+        var matches = builtins.Where(x => x.StartsWith(text)).ToArray();
+        if (matches.Length == 0)
+        {
+            Console.Write("\x07");
+            return Array.Empty<string>();
+        }
+        
+        return matches.Select(b => b.Substring(text.Length) + " ").ToArray();
     }
 }
