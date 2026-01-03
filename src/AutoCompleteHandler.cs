@@ -1,21 +1,15 @@
 ﻿
 public class AutoCompletionHandler : IAutoCompleteHandler
-
 {
-    
-    // characters to start completion from
-    public char[] Separators { get; set; } = new char[] { ' ', '.', '/' };
+    public char[] Separators { get; set; } = "abcdefghijklmnopqrstuvwxyz".ToArray();
 
-    // text - The current text entered in the console
-    // index - The index of the terminal cursor within {text}
+    private readonly string[] builtins = { "echo", "exit", "pwd", "cd", "type" };
+
     public string[] GetSuggestions(string text, int index)
     {
-        if (text.StartsWith("ech"))
-            return new[] { "echo " };
-        if (text.StartsWith("exi"))
-            return new[] { "exit " };
-        return Array.Empty<string>();
+        return builtins
+            .Where(b => b.StartsWith(text))
+            .Select(b => b.Substring(text.Length) + " ")
+            .ToArray();
     }
-
-    
 }
