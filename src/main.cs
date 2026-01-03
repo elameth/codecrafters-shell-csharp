@@ -1,11 +1,8 @@
 using System.Diagnostics;
 
 //to add: linux or windows checks, and compatibility for both
-//NEXT TIME YOU OPEN THIS: PLEASE REFACTOR THIS CODE BEFORE GOING FURTHER. I CAN USE WAY LESS REPEATED CODE.
 class Program
 {
-    
-    
     static bool IsExecutable(string fullPath)
     {
         try
@@ -118,14 +115,15 @@ class Program
     
     static void Main()
     {
-        //var redirectSet = new HashSet<string> { ">", "1>" };
+        
+        ReadLine.AutoCompletionHandler = new AutoCompletionHandler();
         
 
         while (true)
         {
             var append = false;
-            Console.Write("$ "); 
-            var consoleInput = Console.ReadLine();
+            
+            var consoleInput = ReadLine.Read("$ ");
             if (consoleInput == null) continue;
             var tokenizedInput = TokenizationHandler.Tokenize(consoleInput);
             if (tokenizedInput == null)
